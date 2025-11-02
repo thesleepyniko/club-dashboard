@@ -1148,6 +1148,19 @@
         let isAdmin = false;
         let allIncidents = [];
 
+        // Helper function to decode HTML entities and then escape for safe insertion
+        function decodeAndEscapeHtml(text) {
+            // Create a temporary element and use textContent for safer decoding
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = text;
+            const decoded = tempDiv.textContent || tempDiv.innerText || '';
+            
+            // Then escape it for safe insertion into HTML
+            const escapeDiv = document.createElement('div');
+            escapeDiv.textContent = decoded;
+            return escapeDiv.innerHTML;
+        }
+
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
             loadStatusSummary();
@@ -1306,13 +1319,13 @@
             incidentsList.innerHTML = incidents.map(incident => `
                 <div class="incident-item" onclick="${isAdmin ? `manageIncident(${incident.id})` : `viewIncidentDetails(${incident.id})`}">
                     <div class="incident-header">
-                        <h3 class="incident-title">${incident.title}</h3>
+                        <h3 class="incident-title">${decodeAndEscapeHtml(incident.title)}</h3>
                         <div class="incident-badges">
                             <span class="incident-badge status-${incident.status}">${incident.status}</span>
                             <span class="incident-badge impact-${incident.impact}">${incident.impact}</span>
                         </div>
                     </div>
-                    <p class="incident-description">${incident.description}</p>
+                    <p class="incident-description">${decodeAndEscapeHtml(incident.description)}</p>
                     <div class="incident-meta">
                         <span>Created ${formatTimestamp(incident.created_at)}</span>
                         <span class="incident-duration">Duration: ${incident.duration}</span>
@@ -1324,7 +1337,7 @@
                     ` : ''}
                     ${incident.creator ? `
                         <div class="incident-creator">
-                            <i class="fas fa-user"></i>Created by ${incident.creator.username}
+                            <i class="fas fa-user"></i>Created by ${decodeAndEscapeHtml(incident.creator.username)}
                         </div>
                     ` : ''}
                 </div>
@@ -1731,12 +1744,12 @@
             const detailsContainer = document.getElementById('incidentDetails');
             detailsContainer.innerHTML = `
                 <div class="incident-detail-card">
-                    <h4>${incident.title}</h4>
+                    <h4>${decodeAndEscapeHtml(incident.title)}</h4>
                     <div class="incident-badges" style="margin: 1rem 0;">
                         <span class="incident-badge status-${incident.status}">${incident.status}</span>
                         <span class="incident-badge impact-${incident.impact}">${incident.impact}</span>
                     </div>
-                    <p><strong>Description:</strong> ${incident.description}</p>
+                    <p><strong>Description:</strong> ${decodeAndEscapeHtml(incident.description)}</p>
                     <p><strong>Created:</strong> ${formatTimestamp(incident.created_at)}</p>
                     <p><strong>Duration:</strong> ${incident.duration}</p>
                     ${incident.resolved_at ? `<p><strong>Resolved:</strong> ${formatTimestamp(incident.resolved_at)}</p>` : ''}
@@ -1744,7 +1757,7 @@
                         <p><strong>Affected Services:</strong> ${incident.affected_services.join(', ')}</p>
                     ` : ''}
                     ${incident.creator ? `
-                        <p><strong>Created by:</strong> ${incident.creator.username}</p>
+                        <p><strong>Created by:</strong> ${decodeAndEscapeHtml(incident.creator.username)}</p>
                     ` : ''}
                 </div>
             `;
@@ -1770,11 +1783,11 @@
                 updatesList.innerHTML = incident.updates.map(update => `
                     <div class="update-item">
                         <div class="update-header">
-                            <span>By ${update.creator ? update.creator.username : 'System'}</span>
+                            <span>By ${update.creator ? decodeAndEscapeHtml(update.creator.username) : 'System'}</span>
                             <span>${formatTimestamp(update.created_at)}</span>
                         </div>
                         <div class="update-status status-${update.status}">${update.status}</div>
-                        <p>${update.message}</p>
+                        <p>${decodeAndEscapeHtml(update.message)}</p>
                     </div>
                 `).join('');
             } else {

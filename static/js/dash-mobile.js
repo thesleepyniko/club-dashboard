@@ -654,6 +654,8 @@ class MobileClubDashboard {
         temp.innerHTML = postHtml;
         
         // Set the content HTML directly to avoid double-escaping
+        // Note: post.content_html is sanitized server-side via markdown_to_html() or html.escape()
+        // This ensures safe HTML content before it reaches the client
         const contentDiv = temp.querySelector(`#${contentId}`);
         if (contentDiv) {
             contentDiv.innerHTML = post.content_html || post.content.replace(/\n/g, '<br>');

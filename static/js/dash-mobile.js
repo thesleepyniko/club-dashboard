@@ -202,6 +202,19 @@ class MobileClubDashboard {
             });
         });
 
+        // Event delegation for delete post buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.delete-post-btn')) {
+                const btn = e.target.closest('.delete-post-btn');
+                const postId = btn.dataset.postId;
+                const postContent = btn.dataset.postContent;
+                if (postId && postContent) {
+                    deletePost(parseInt(postId), postContent);
+                    btn.closest('.mobile-card').remove();
+                }
+            }
+        });
+
         // Touch gestures for better mobile experience
         this.setupTouchGestures();
 
@@ -604,8 +617,13 @@ class MobileClubDashboard {
         const contentId = `post-content-${post.id}`;
         
         // Escape username for safe insertion
-        const escapedUsername = this.escapeHtml(post.user.username);
-        const usernameInitial = post.user.username ? this.escapeHtml(post.user.username[0].toUpperCase()) : '?';
+        const escapedUsername = this.escapeHtml(post.user.username || 'Unknown');
+        const usernameInitial = (post.user.username && post.user.username.length > 0) 
+            ? this.escapeHtml(post.user.username[0].toUpperCase()) 
+            : '?';
+        
+        // Escape content for data attribute (to avoid XSS in onclick)
+        const escapedContent = this.escapeHtml(post.content);
         
         // Build the post HTML structure without the content (to avoid double-escaping)
         const postHtml = `
@@ -621,7 +639,7 @@ class MobileClubDashboard {
                         </div>
                     </div>
                     ${isLeader ? `
-                        <button onclick="deletePost(${post.id}, '${post.content.replace(/'/g, "\\'")}'); this.closest('.mobile-card').remove();" 
+                        <button data-post-id="${post.id}" data-post-content="${escapedContent}" class="delete-post-btn"
                                 style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 0.25rem;">
                             <i class="fas fa-trash"></i>
                         </button>

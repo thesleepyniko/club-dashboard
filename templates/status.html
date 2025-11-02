@@ -1150,15 +1150,15 @@
 
         // Helper function to decode HTML entities and then escape for safe insertion
         function decodeAndEscapeHtml(text) {
-            // First decode the HTML entities
-            const textarea = document.createElement('textarea');
-            textarea.innerHTML = text;
-            const decoded = textarea.value;
+            // Create a temporary element and use textContent for safer decoding
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = text;
+            const decoded = tempDiv.textContent || tempDiv.innerText || '';
             
             // Then escape it for safe insertion into HTML
-            const div = document.createElement('div');
-            div.textContent = decoded;
-            return div.innerHTML;
+            const escapeDiv = document.createElement('div');
+            escapeDiv.textContent = decoded;
+            return escapeDiv.innerHTML;
         }
 
         // Initialize page

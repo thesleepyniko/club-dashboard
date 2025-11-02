@@ -21,6 +21,13 @@ class MobileClubDashboard {
         this.init();
     }
 
+    // Helper function to escape HTML for safe insertion
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     async init() {
         try {
             // Show loading screen
@@ -540,11 +547,11 @@ class MobileClubDashboard {
             }
             
             if (data.projects && data.projects.length > 0) {
-                const title = `<h4 style="margin-bottom: 1rem; color: #1a202c;">${data.username}'s Hackatime Projects</h4>`;
+                const title = `<h4 style="margin-bottom: 1rem; color: #1a202c;">${this.escapeHtml(data.username)}'s Hackatime Projects</h4>`;
                 const projectsHtml = data.projects.map(project => this.renderHackatimeProject(project)).join('');
                 container.innerHTML = title + projectsHtml;
             } else {
-                container.innerHTML = this.getEmptyState('clock', 'No projects found', `${data.username} hasn't logged any coding time yet on Hackatime`);
+                container.innerHTML = this.getEmptyState('clock', 'No projects found', `${this.escapeHtml(data.username)} hasn't logged any coding time yet on Hackatime`);
             }
         } catch (error) {
             console.error('Error loading Hackatime projects:', error);
@@ -557,9 +564,9 @@ class MobileClubDashboard {
             <div class="mobile-card" style="margin-bottom: 1rem;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
                     <h4 style="margin: 0; color: #1a202c; font-size: 1rem;">
-                        <i class="fas fa-code"></i> ${project.name}
+                        <i class="fas fa-code"></i> ${this.escapeHtml(project.name)}
                     </h4>
-                    <span style="background: #10b981; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">${project.formatted_time}</span>
+                    <span style="background: #10b981; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">${this.escapeHtml(project.formatted_time)}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.875rem; color: #6b7280;">
                     <span style="display: flex; align-items: center; gap: 0.25rem;">
@@ -596,16 +603,20 @@ class MobileClubDashboard {
         // Create a unique ID for this post's content container
         const contentId = `post-content-${post.id}`;
         
+        // Escape username for safe insertion
+        const escapedUsername = this.escapeHtml(post.user.username);
+        const usernameInitial = post.user.username ? this.escapeHtml(post.user.username[0].toUpperCase()) : '?';
+        
         // Build the post HTML structure without the content (to avoid double-escaping)
         const postHtml = `
             <div class="mobile-card" style="margin-bottom: 1rem;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                         <div style="width: 40px; height: 40px; background: #3b82f6; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600;">
-                            ${post.user.username[0].toUpperCase()}
+                            ${usernameInitial}
                         </div>
                         <div>
-                            <div style="font-weight: 600; color: #1a202c; font-size: 0.9rem;">${post.user.username}</div>
+                            <div style="font-weight: 600; color: #1a202c; font-size: 0.9rem;">${escapedUsername}</div>
                             <div style="color: #6b7280; font-size: 0.75rem;">${new Date(post.created_at).toLocaleDateString()}</div>
                         </div>
                     </div>
@@ -672,7 +683,7 @@ class MobileClubDashboard {
             <div class="mobile-card" style="margin-bottom: 1rem;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
                     <h4 style="margin: 0; color: #1a202c; font-size: 1rem;">
-                        <i class="fas fa-tasks"></i> ${assignment.title}
+                        <i class="fas fa-tasks"></i> ${this.escapeHtml(assignment.title)}
                     </h4>
                     ${assignment.due_date ? `
                         <span style="background: #f59e0b; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
@@ -681,7 +692,7 @@ class MobileClubDashboard {
                     ` : ''}
                 </div>
                 <p style="margin: 0; color: #6b7280; font-size: 0.875rem; line-height: 1.5;">
-                    ${assignment.description}
+                    ${this.escapeHtml(assignment.description)}
                 </p>
             </div>
         `;
@@ -692,18 +703,18 @@ class MobileClubDashboard {
             <div class="mobile-card" style="margin-bottom: 1rem;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
                     <h4 style="margin: 0; color: #1a202c; font-size: 1rem;">
-                        <i class="fas fa-calendar"></i> ${meeting.title}
+                        <i class="fas fa-calendar"></i> ${this.escapeHtml(meeting.title)}
                     </h4>
                     <span style="background: #10b981; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
                         ${new Date(meeting.datetime).toLocaleDateString()}
                     </span>
                 </div>
                 <p style="margin: 0; color: #6b7280; font-size: 0.875rem; line-height: 1.5;">
-                    ${meeting.description || 'No description provided'}
+                    ${this.escapeHtml(meeting.description || 'No description provided')}
                 </p>
                 ${meeting.location ? `
                     <div style="margin-top: 0.5rem; color: #6b7280; font-size: 0.75rem;">
-                        <i class="fas fa-map-marker-alt"></i> ${meeting.location}
+                        <i class="fas fa-map-marker-alt"></i> ${this.escapeHtml(meeting.location)}
                     </div>
                 ` : ''}
             </div>
@@ -715,13 +726,13 @@ class MobileClubDashboard {
             <div class="mobile-card" style="margin-bottom: 1rem;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
                     <h4 style="margin: 0; color: #1a202c; font-size: 1rem;">
-                        <i class="fas fa-book"></i> ${resource.title}
+                        <i class="fas fa-book"></i> ${this.escapeHtml(resource.title)}
                     </h4>
                 </div>
                 <p style="margin: 0 0 0.75rem 0; color: #6b7280; font-size: 0.875rem; line-height: 1.5;">
-                    ${resource.description || 'No description provided'}
+                    ${this.escapeHtml(resource.description || 'No description provided')}
                 </p>
-                <a href="${resource.url}" target="_blank" 
+                <a href="${this.escapeHtml(resource.url)}" target="_blank" 
                    style="display: inline-flex; align-items: center; gap: 0.5rem; color: #3b82f6; text-decoration: none; font-size: 0.875rem; font-weight: 500;">
                     <i class="fas fa-external-link-alt"></i> Open Resource
                 </a>

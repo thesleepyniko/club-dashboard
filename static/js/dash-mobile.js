@@ -593,7 +593,11 @@ class MobileClubDashboard {
 
     renderPost(post) {
         const isLeader = window.clubData && window.clubData.isLeader;
-        return `
+        // Create a unique ID for this post's content container
+        const contentId = `post-content-${post.id}`;
+        
+        // Build the post HTML structure without the content (to avoid double-escaping)
+        const postHtml = `
             <div class="mobile-card" style="margin-bottom: 1rem;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
                     <div style="display: flex; align-items: center; gap: 0.75rem;">
@@ -612,11 +616,21 @@ class MobileClubDashboard {
                         </button>
                     ` : ''}
                 </div>
-                <div class="mobile-post-content" style="color: #374151; line-height: 1.6;">
-                    ${post.content_html || post.content.replace(/\n/g, '<br>')}
-                </div>
+                <div id="${contentId}" class="mobile-post-content" style="color: #374151; line-height: 1.6;"></div>
             </div>
         `;
+        
+        // Use a temporary container to create the DOM element
+        const temp = document.createElement('div');
+        temp.innerHTML = postHtml;
+        
+        // Set the content HTML directly to avoid double-escaping
+        const contentDiv = temp.querySelector(`#${contentId}`);
+        if (contentDiv) {
+            contentDiv.innerHTML = post.content_html || post.content.replace(/\n/g, '<br>');
+        }
+        
+        return temp.innerHTML;
     }
 
     // Initialize PWA functionality
